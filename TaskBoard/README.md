@@ -2,7 +2,8 @@
 
 A simple contract that allows interaction between the task publisher and the worker. The task publisher can publish tasks, the worker can take them into work, hand over the work, publisher can accept it or decline. When task publisher publish task he should send msg.value during call publishTask().
 When worker send solution using passTask() and publisher accept it, worker receive msg.value-fee. 
-Please, do nto use this version in production. There is UUPS version with DAO implementation for fee change.
+
+There is UUPS version with DAO implementation for fee change.
 Do not use this is production, this is first pet project just for memories.
 
 Files:
