@@ -75,7 +75,7 @@ contract Board is Initializable, UUPSUpgradeable, OwnableUpgradeable, PriceConsu
 
     Task[] public arrayTasks;
         
-    //Anyone can publish task;    
+    //@note Anyone can publish task with msg.value;    
     function publishTask(string calldata _taskName, string calldata _linkAtTaskDescription) external payable {
         require(msg.value > minimumPrice(),"Less than minimum price"); 
         arrayTasks.push(Task({
@@ -92,11 +92,12 @@ contract Board is Initializable, UUPSUpgradeable, OwnableUpgradeable, PriceConsu
         emit PublishTask (arrayTasks.length, _taskName, arrayTasks[arrayTasks.length-1].price); 
     }
 
-    //1% from chainLinkFeedPriceEth;
+    //@note 1% from chainLinkFeedPriceEth;
     function minimumPrice() public view returns(uint256)  {
         return uint256(PriceConsumerV3.getLatestPrice()*10**7/100); //what to do if chainlink contract died
     }
 
+    //@note publisher can cancel if no one got it to work.
     function cancelPublishedTask(uint256 _taskId) external {
         require(arrayTasks[_taskId].publisherAddress == tx.origin,"You are not allowed to cancel it");
         require(arrayTasks[_taskId].currentTaskStatus == TaskStatuses.Published,"Can't cancel in this status");
@@ -105,6 +106,7 @@ contract Board is Initializable, UUPSUpgradeable, OwnableUpgradeable, PriceConsu
         emit CancelPublishedTask (_taskId, arrayTasks[_taskId].taskName, arrayTasks[_taskId].price);
     }
 
+    //@note worker can get task.
     function getTask(uint256 _taskId) external { 
         require(arrayTasks[_taskId].currentTaskStatus == TaskStatuses.Published,"Can't take task in this status");
         arrayTasks[_taskId].currentTaskStatus = TaskStatuses.atWork;
@@ -113,7 +115,7 @@ contract Board is Initializable, UUPSUpgradeable, OwnableUpgradeable, PriceConsu
         emit GetTask (_taskId, arrayTasks[_taskId].taskName, arrayTasks[_taskId].publisherAddress, arrayTasks[_taskId].workerAddress);
     }
 
-    
+    //@note worker can pass task.
     function passTask(uint256 _taskId) external {
         require(arrayTasks[_taskId].currentTaskStatus == TaskStatuses.atWork,"Can't take task in this status");
         require(arrayTasks[_taskId].workerAddress == tx.origin,"Can't take task in this status");
@@ -122,7 +124,7 @@ contract Board is Initializable, UUPSUpgradeable, OwnableUpgradeable, PriceConsu
         emit PassTask (_taskId, arrayTasks[_taskId].taskName, arrayTasks[_taskId].publisherAddress, arrayTasks[_taskId].workerAddress);
     }
     
-    //If task has been passed by worker, you as a publisher of this task can approve it.
+    //@note If task has been passed by worker, you as a publisher of this task can approve it.
     function approveTask(uint256 _taskId) external {
         require(arrayTasks[_taskId].currentTaskStatus == TaskStatuses.waitingForApproval,"Can't take task in this status");
         require(arrayTasks[_taskId].publisherAddress ==  tx.origin,"Can't take task in this status");
@@ -137,7 +139,8 @@ contract Board is Initializable, UUPSUpgradeable, OwnableUpgradeable, PriceConsu
         emit ApproveTask (_taskId, arrayTasks[_taskId].taskName, arrayTasks[_taskId].publisherAddress, arrayTasks[_taskId].workerAddress);
     }
 
-    function withdraw(address target, uint256 amount) external onlyDAO {
+    //@note you are free to set onlyDAO/onlyOwner modificator here. Do not use w/o it.
+    function withdraw(address target, uint256 amount) external {
         require(amount <= address(this).balance);
         bool payed;
         require(!payed,"No ree");
