@@ -1,6 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
+/*A simple contract that allows interaction between the task publisher and the worker. 
+The task publisher can publish tasks, the worker can take them into work, hand over the work, publisher can accept it or decline.
+When task publisher publish task he should send msg.value during call publishTask().
+When worker send solution using passTask() and publisher accept it, worker receive msg.value-fee.
+*/
+
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
@@ -26,7 +32,7 @@ contract Board is Initializable, UUPSUpgradeable, OwnableUpgradeable, PriceConsu
     address public oracle;
     uint256 public fee;
     
-
+    //@note you are free to set onlyDAO/onlyOwner modificator here. Do not use w/o it.
     function changeFee(uint256 _fee) external {
         uint256 oldFee = fee;
         fee = _fee;
@@ -34,6 +40,7 @@ contract Board is Initializable, UUPSUpgradeable, OwnableUpgradeable, PriceConsu
         emit FeeChanged (oldFee, _fee);  
     }
 
+    //@note 0xD4a33860578De61DBAbDc8BFdb98FD742fA7028e current ChainkLink eth price SC.
     function changeOracleAddress(address _oracle) external onlyDAO {
         address oldOracle = oracle;
         oracle = _oracle;
@@ -41,7 +48,7 @@ contract Board is Initializable, UUPSUpgradeable, OwnableUpgradeable, PriceConsu
         emit OracleAddressChanged (oldOracle, oracle);  
     }
 
-    //0xD4a33860578De61DBAbDc8BFdb98FD742fA7028e current ChainkLink eth price SC.
+    //@note for proxy versions
     function initialize(uint256 _fee, address _dao) public initializer {
         __Ownable_init();
         require(_fee >=0 && _fee <= 25);
