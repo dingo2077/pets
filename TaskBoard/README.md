@@ -4,7 +4,7 @@ A simple contract that allows interaction between the task publisher and the wor
 When worker send solution using passTask() and publisher accept it, worker receive msg.value-fee. 
 
 There is UUPS version with DAO implementation for fee change.
-Do not use this is production, this is first pet project just for memories.
+
 
 Files:
 - 00-Proxy.sol: Implementation of ERC1967Proxy by OZ;
